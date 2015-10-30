@@ -17,7 +17,7 @@ import java.lang.Thread;
  */
 
 
-CERDACO
+
 public class ClienteARC {
     
     class MiHilo extends Thread{
