@@ -40,7 +40,7 @@ public class ClienteARC {
                 Logger.getLogger(ClienteARC.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }
+    }//jijiji//
     
     public void iniciarCliente(MiHilo h){
         int id = -1;
