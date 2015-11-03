@@ -5,6 +5,8 @@
  */
 
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.net.*;
 import java.util.*;
 import java.io.*;
@@ -21,15 +23,18 @@ public class ClienteARC {
     
     private Socket so;
     private final int puerto = 5000;
-    private final String host= "localhost";
-    private DataOutputStream mensaje;
+    private final String host= "192.168.1.5";
+    private ObjectOutputStream mensaje;
+    private DataOutputStream mensajetexto;
     private DataInputStream entrada;
+    private double coordx, coordy; 
+    Toolkit t = Toolkit.getDefaultToolkit();
     
     public void lanzarHilos(){
         for(int i=0; i< 60; i++){
             MiHilo h = new MiHilo(i, this);
             h.start();
-            
+            System.out.println("YEEEEEEEEEEEEEEEEEEEEE");
             /**
              * Usamos el método join para realentizar el proceso y ver que todo se conecta de forma correcta
              */
@@ -41,23 +46,40 @@ public class ClienteARC {
         }
     }//jijiji//
     
+    public void obtenerCoordenadas (){
+        Random x = new Random();
+        Random y = new Random();
+        
+        Dimension screenSize =  Toolkit.getDefaultToolkit().getScreenSize();
+        
+        this.coordx = (x.nextDouble() * screenSize.width + 0);
+        this.coordy = (y.nextDouble() * screenSize.height + 0);
+        
+    }
+    
     public void iniciarCliente(MiHilo h){
         int id = -1;
         String nombre;
         
         try {
             //Asignamos el identificador del hilo
-            id = h.getIdHilo();
-            nombre = Integer.toString(id);
             //Asigna un socket a escuchar el puerto de un host 
             so = new Socket(host, puerto);
+            System.out.println("SOCKET");
             //Mensaje que vamos a recibir
+            mensajetexto = new DataOutputStream(so.getOutputStream());
             entrada = new DataInputStream(new DataInputStream(so.getInputStream()));
             //mensaje que vamos a enviar
-            mensaje = new DataOutputStream(so.getOutputStream());
+            mensaje = new ObjectOutputStream(so.getOutputStream());
+            System.out.println("Debo mandar mensaje ahora");
+            mensajetexto.writeUTF("hola que tal");
             
-            mensaje.writeUTF(nombre);
-            System.out.println(entrada.readUTF() +"Hilo "+id);
+            System.out.println(entrada.readUTF());
+            
+            if(entrada!=null){
+                mensaje.writeObject(h);
+            }
+            
             
             //so.close();
         } catch (IOException ex) {
@@ -72,4 +94,11 @@ public class ClienteARC {
         
     }
     
+    public Double getCoordenadaX(){
+        return this.coordx;
+    }
+    
+    public Double getCoordenadaY(){
+        return this.coordy;
+    }
 }
