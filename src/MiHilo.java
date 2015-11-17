@@ -14,19 +14,19 @@ import java.io.Serializable;
 public class MiHilo extends Thread implements Serializable{
     
         private int idHilo;
-        Thread h;
+        //Thread h;
         private double coordx, coordy;
         ClienteARC clientes;
-        public MiHilo(int idHilo, ClienteARC clientes){
-            this.idHilo = idHilo;
-            this.clientes = clientes;
+        
+        public MiHilo(int _idHilo, ClienteARC _clientes){
+            idHilo = _idHilo;
+            clientes = _clientes;
         }
 
         @Override
         public void run(){
             try{
                 clientes.obtenerCoordenadas();
-                System.out.println("he obtenido coordenadas");
                 this.coordx = clientes.getCoordenadaX();
                 this.coordy = clientes.getCoordenadaY();
                 clientes.iniciarCliente(this);
