@@ -38,11 +38,6 @@ public class ClienteARC {
             /**
              * Usamos el método join para realentizar el proceso y ver que todo se conecta de forma correcta
              */
-            try {
-                h.join(500);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(ClienteARC.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
     }
  

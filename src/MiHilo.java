@@ -14,10 +14,9 @@ import java.util.logging.Logger;
 public class MiHilo extends Thread implements Serializable{
     
         private int idHilo;
-        //Thread h;
         private Socket so;
         private final int puerto = 5000;
-        private final String host= "localhost";
+        private final String host= "147.156.88.143";
 
         private ObjectOutputStream mensaje;
         private DataOutputStream mensajetexto;
@@ -33,7 +32,7 @@ public class MiHilo extends Thread implements Serializable{
         }
 
         @Override
-        public void run(){
+        public synchronized void run(){
             try{
                 this.obtenerCoordenadas();
                 this.coordx = clientes.getCoordenadaX();
@@ -48,7 +47,7 @@ public class MiHilo extends Thread implements Serializable{
         
         public void iniciarCliente(){
 
-            try {
+            try{
                 //Asignamos el identificador del hilo y un socket a escuchar el puerto de un host
                 so = new Socket(host, puerto);
 
@@ -59,13 +58,12 @@ public class MiHilo extends Thread implements Serializable{
                 mensajetexto.writeUTF("A la espera proceso "+getIdHilo());
                 mensajetexto.flush();
 
-                System.out.println("ENTRADATXT.READ = "+ entradatxt.readUTF());
-
-                switch (entradatxt.readUTF()) {
+                String ent = entradatxt.readUTF();
+                switch (ent) {
                     case "Conexión creada, mantente a la espera.":
                         try {
                             System.out.println("Entro en espera");
-                            this.wait(2000);
+                            this.wait();
                         } catch (InterruptedException ex) {
                             Logger.getLogger(ClienteARC.class.getName()).log(Level.SEVERE, null, ex);
                         }   break;
@@ -75,12 +73,14 @@ public class MiHilo extends Thread implements Serializable{
                         mensaje.writeObject(this);
                         mensaje.flush();
                         break;
+                    default:
+                        System.out.println("Estoy en el switch");
+                        break;
                 }
 
                 //mensaje que vamos a enviar
                 mensajetexto = new DataOutputStream(so.getOutputStream());
-
-
+                
                 //so.close();
             } catch (IOException ex) {
                 System.out.println("ERROR INICIAR CLIENTE "+ getIdHilo());
