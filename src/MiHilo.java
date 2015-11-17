@@ -35,8 +35,6 @@ public class MiHilo extends Thread implements Serializable{
         public synchronized void run(){
             try{
                 this.obtenerCoordenadas();
-                this.coordx = clientes.getCoordenadaX();
-                this.coordy = clientes.getCoordenadaY();
                 this.iniciarCliente();
                
             }catch(Exception e){
@@ -45,38 +43,32 @@ public class MiHilo extends Thread implements Serializable{
 
         }
         
-        public void iniciarCliente(){
+        public synchronized void iniciarCliente() throws InterruptedException{
 
             try{
                 //Asignamos el identificador del hilo y un socket a escuchar el puerto de un host
                 so = new Socket(host, puerto);
 
                 //Mensaje que vamos a recibir
-                entradatxt = new DataInputStream(new DataInputStream(so.getInputStream()));
+                entradatxt = new DataInputStream((so.getInputStream()));
 
                 mensajetexto = new DataOutputStream(so.getOutputStream());
                 mensajetexto.writeUTF("A la espera proceso "+getIdHilo());
                 mensajetexto.flush();
 
                 String ent = entradatxt.readUTF();
-                switch (ent) {
-                    case "Conexión creada, mantente a la espera.":
-                        try {
-                            System.out.println("Entro en espera");
-                            this.wait();
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(ClienteARC.class.getName()).log(Level.SEVERE, null, ex);
-                        }   break;
-                    case "Comenzar envio de coordenadas":
-                        System.out.println("Ha llegado el mensaje comenzar para el hilo "+ getIdHilo());
-                        mensaje = new ObjectOutputStream(so.getOutputStream());
-                        mensaje.writeObject(this);
-                        mensaje.flush();
-                        break;
-                    default:
-                        System.out.println("Estoy en el switch");
-                        break;
+                System.out.println(ent);
+                if(ent.equals("Conexión creada, mantente a la espera.")){
+                    this.wait(1000);
                 }
+                
+                ent = entradatxt.readUTF();
+                System.out.println("ENT 2: " + ent);
+                if(ent.equals("Comenzar")){
+                    System.out.println("voy a enviar");
+                    enviarHilo();
+                }
+                
 
                 //mensaje que vamos a enviar
                 mensajetexto = new DataOutputStream(so.getOutputStream());
@@ -86,7 +78,7 @@ public class MiHilo extends Thread implements Serializable{
                 System.out.println("ERROR INICIAR CLIENTE "+ getIdHilo());
             }
         }
-
+        
         public void obtenerCoordenadas (){
             Random x = new Random();
             Random y = new Random();
@@ -97,7 +89,16 @@ public class MiHilo extends Thread implements Serializable{
             this.coordy = (y.nextDouble() * screenSize.height + 0);
 
         }
-            
+        
+        private void enviarHilo() throws IOException, InterruptedException{
+            System.out.println("Ha llegado el mensaje comenzar para el hilo "+ getIdHilo());
+            mensaje = new ObjectOutputStream(so.getOutputStream());
+            mensaje.writeObject(this);
+            this.wait();
+            mensaje.flush();
+        }
+        
+        
         public int getIdHilo(){
             return idHilo;
         }

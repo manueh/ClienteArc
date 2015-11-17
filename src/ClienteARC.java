@@ -32,12 +32,10 @@ public class ClienteARC {
     Toolkit t = Toolkit.getDefaultToolkit();
     
     public void lanzarHilos(){
-        for(int i = 0; i < 60; i++){
+        for(int i = 0; i < 10; i++){
             MiHilo h = new MiHilo(i, this);
             h.start();
-            /**
-             * Usamos el método join para realentizar el proceso y ver que todo se conecta de forma correcta
-             */
+            
         }
     }
  
