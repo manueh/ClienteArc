@@ -45,7 +45,7 @@ public class ClienteARC {
             }
         }
     }
-    public void obtenerCoordenadas (){
+    /*public void obtenerCoordenadas (){
         Random x = new Random();
         Random y = new Random();
         
@@ -56,7 +56,7 @@ public class ClienteARC {
         
     }
     
-    public void iniciarCliente(MiHilo h){
+   public void iniciarCliente(MiHilo h){
         
         try {
             //Asignamos el identificador del hilo y un socket a escuchar el puerto de un host
@@ -96,7 +96,7 @@ public class ClienteARC {
             System.out.println("ERROR INICIAR CLIENTE "+ h.getIdHilo());
         }
     }
-    
+    */
  
     public static void main(String[] args) {
         ClienteARC c = new ClienteARC();
