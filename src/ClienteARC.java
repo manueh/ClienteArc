@@ -21,16 +21,6 @@ import java.lang.Thread;
 
 public class ClienteARC {
     
-    private Socket so;
-    private final int puerto = 5000;
-    private final String host= "localhost";
-    
-    private ObjectOutputStream mensaje;
-    private DataOutputStream mensajetexto;
-    private DataInputStream entradatxt;
-    private double coordx, coordy; 
-    Toolkit t = Toolkit.getDefaultToolkit();
-    
     public void lanzarHilos(){
         for(int i = 0; i < 10; i++){
             MiHilo h = new MiHilo(i, this);
@@ -43,13 +33,5 @@ public class ClienteARC {
         ClienteARC c = new ClienteARC();
         c.lanzarHilos();
         
-    }
-    
-    public Double getCoordenadaX(){
-        return this.coordx;
-    }
-    
-    public Double getCoordenadaY(){
-        return this.coordy;
     }
 }

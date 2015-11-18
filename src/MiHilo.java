@@ -16,12 +16,11 @@ public class MiHilo extends Thread implements Serializable{
         private int idHilo;
         private Socket so;
         private final int puerto = 5000;
-        private final String host= "147.156.88.143";
-
+        private final String host= "localhost";
+        private Paquete p;
         private ObjectOutputStream mensaje;
         private DataOutputStream mensajetexto;
         private DataInputStream entradatxt;
-        private double coordx, coordy; 
         Toolkit t = Toolkit.getDefaultToolkit();
         
         ClienteARC clientes;
@@ -34,8 +33,8 @@ public class MiHilo extends Thread implements Serializable{
         @Override
         public synchronized void run(){
             try{
-                this.obtenerCoordenadas();
-                this.iniciarCliente();
+                p = this.crearPaquete();
+                this.iniciarCliente(p);
                
             }catch(Exception e){
                 e.printStackTrace();
@@ -43,7 +42,7 @@ public class MiHilo extends Thread implements Serializable{
 
         }
         
-        public synchronized void iniciarCliente() throws InterruptedException{
+        public synchronized void iniciarCliente(Paquete p) throws InterruptedException{
 
             try{
                 //Asignamos el identificador del hilo y un socket a escuchar el puerto de un host
@@ -66,7 +65,7 @@ public class MiHilo extends Thread implements Serializable{
                 System.out.println("ENT 2: " + ent);
                 if(ent.equals("Comenzar")){
                     System.out.println("voy a enviar");
-                    enviarHilo();
+                    enviarPaquete(p);
                 }
                 
 
@@ -79,22 +78,26 @@ public class MiHilo extends Thread implements Serializable{
             }
         }
         
-        public void obtenerCoordenadas (){
+        public Paquete crearPaquete (){
+            
+            double coordx, coordy;
             Random x = new Random();
             Random y = new Random();
-
+            
             Dimension screenSize =  Toolkit.getDefaultToolkit().getScreenSize();
 
-            this.coordx = (x.nextDouble() * screenSize.width + 0);
-            this.coordy = (y.nextDouble() * screenSize.height + 0);
-
+            coordx = (x.nextDouble() * screenSize.width + 0);
+            coordy = (y.nextDouble() * screenSize.height + 0);
+            
+            Paquete p = new Paquete(this.idHilo, coordx, coordy);
+            return p;
         }
         
-        private void enviarHilo() throws IOException, InterruptedException{
+        private void enviarPaquete(Paquete p) throws IOException, InterruptedException{
             System.out.println("Ha llegado el mensaje comenzar para el hilo "+ getIdHilo());
             mensaje = new ObjectOutputStream(so.getOutputStream());
-            mensaje.writeObject(this);
-            this.wait();
+            mensaje.writeObject(p);
+            this.wait(3000);
             mensaje.flush();
         }
         
@@ -106,12 +109,5 @@ public class MiHilo extends Thread implements Serializable{
         public void setIdHilo(int idHilo){
             this.idHilo = idHilo;
         }
-        
-        public Double getX(){
-            return this.coordx;
-        }
-        
-        public Double getY(){
-            return this.coordy;
-        }
+
     }
