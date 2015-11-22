@@ -1,4 +1,7 @@
+package Model;
 
+
+import Model.Paquete;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.DataInputStream;
@@ -11,7 +14,7 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MiHilo extends Thread implements Serializable{
+public class MiHilo extends Thread{
     
         private int idHilo;
         private Socket so;
@@ -50,7 +53,7 @@ public class MiHilo extends Thread implements Serializable{
 
                 //Mensaje que vamos a recibir
                 entradatxt = new DataInputStream((so.getInputStream()));
-
+                
                 mensajetexto = new DataOutputStream(so.getOutputStream());
                 mensajetexto.writeUTF("A la espera proceso "+getIdHilo());
                 mensajetexto.flush();
@@ -95,8 +98,10 @@ public class MiHilo extends Thread implements Serializable{
         
         private void enviarPaquete(Paquete p) throws IOException, InterruptedException{
             System.out.println("Ha llegado el mensaje comenzar para el hilo "+ getIdHilo());
+            System.out.println("Paquete: "+ p.getID() + " Con coordenadas: " + p.getX()+ " " + p.getY());
             mensaje = new ObjectOutputStream(so.getOutputStream());
             mensaje.writeObject(p);
+            System.out.println("Enviado paquete: " + p.getID());
             this.wait(3000);
             mensaje.flush();
         }

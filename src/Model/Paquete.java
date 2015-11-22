@@ -1,3 +1,8 @@
+package Model;
+
+
+import java.io.Serializable;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -8,7 +13,7 @@
  *
  * @author Manu
  */
-public class Paquete {
+public class Paquete implements Serializable{
     private double coordx, coordy; 
     private int id;
     
@@ -25,7 +30,7 @@ public class Paquete {
         return this.coordx;
     }
     
-    public void setY(double coord){
+    public void setY(double coordy){
         this.coordy = coordy;
     }
     
