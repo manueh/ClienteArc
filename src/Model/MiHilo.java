@@ -28,7 +28,7 @@ public class MiHilo extends Thread{
         private DataInputStream entradatxt;
         Toolkit t = Toolkit.getDefaultToolkit();
         private Paquete[] paquetesVecinos;
-        private static int contVecinos ;
+        private  int contVecinos ;
         
         ClienteARC clientes;
         
@@ -74,7 +74,6 @@ public class MiHilo extends Thread{
                         case "Numero Vecinos":
                             int aux = 0;
                             aux = Integer.parseInt(entradatxt.readUTF());
-                            
                             paquetesVecinos = new Paquete[aux - 1];
                             System.out.println("Mi tamaño de vector es: " + (aux-1));
                             break;
@@ -86,24 +85,11 @@ public class MiHilo extends Thread{
                             System.out.println("Esperando...");
                             wait(500);
                             break;
-                        case "Te envio a tus vecinos.":
-                            Paquete nuevo;
-                            for(contVecinos = 0; contVecinos < paquetesVecinos.length; contVecinos++ ){
-                                vecinos = new ObjectInputStream(so.getInputStream());
-                                try{
-                                   System.out.println("Length " + paquetesVecinos.length);
-                                   nuevo = (Paquete)vecinos.readObject();
-                                   System.out.println("Contador: " + contVecinos);
-                                   //if(nuevo.getID()!=this.getIdHilo())
-                                        almacenarPaquetesServidor(nuevo, contVecinos);
-                                   
-                                   //wait(100);
-                                }
-                                catch (ClassNotFoundException ex) {
-                                    ex.printStackTrace();
-                                    Logger.getLogger(MiHilo.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                            }
+                        case "Te envio a tus vecinos.":                              
+                            almacenarPaquetesServidor();
+                            System.out.println("Almacenando...");
+                               
+                            
                             
                             /*for(contVecinos = 0; contVecinos < paquetesVecinos.length; contVecinos++)
                                 System.out.println(paquetesVecinos[contVecinos].getID());
@@ -148,11 +134,25 @@ public class MiHilo extends Thread{
             mensaje.flush();
         }
         
-        public void almacenarPaquetesServidor(Paquete p, int numVecino){
-            paquetesVecinos[numVecino] = p;
-            System.out.println("Soy el proceso " + this.getIdHilo() + " Y almaceno al Vecino " + p.getID() + " almacenado en pos " + numVecino);
+        public void almacenarPaquetesServidor(){
+            
+            Paquete p;
+            for(int i = 0 ; i < paquetesVecinos.length;  i++ ){
+                
+                try {
+                    vecinos = new ObjectInputStream(so.getInputStream());
+                    p = (Paquete) vecinos.readObject();
+                    System.out.println("Paquete recibido: " + p.getID() + " " + p.getX());
+                    paquetesVecinos[i] = p;
+                    System.out.println("Soy el proceso " + this.getIdHilo() + " Y almaceno al Vecino " + p.getID() + " almacenado en pos " + i);
+                } catch (IOException ex) {
+                    Logger.getLogger(MiHilo.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(MiHilo.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+            }
         }
-        
         public int getIdHilo(){
             return idHilo;
         }
