@@ -59,18 +59,20 @@ public class MiHilo extends Thread{
                 mensajetexto.flush();
 
                 String ent = entradatxt.readUTF();
-                System.out.println(ent);
-                if(ent.equals("Conexión creada, mantente a la espera.")){
-                    this.wait(1000);
-                }
-                
-                ent = entradatxt.readUTF();
-                System.out.println("ENT 2: " + ent);
-                if(ent.equals("Comenzar")){
-                    System.out.println("voy a enviar");
-                    enviarPaquete(p);
-                }
-                
+               
+                switch(ent){
+                    case "Conexión creada, mantente a la espera.":
+                        System.out.println("Conexión Creada");
+                        this.wait(1000);
+                    case "Comenzar":
+                        System.out.println("voy a enviar");
+                        enviarPaquete(p);
+                    case "Mantente a la espera.":
+                        System.out.println("Esperando...");
+                        wait(500);
+                    default:
+                        System.out.println("No se ha obtenido respuesta del servidor");
+            }
 
                 //mensaje que vamos a enviar
                 mensajetexto = new DataOutputStream(so.getOutputStream());
@@ -102,7 +104,7 @@ public class MiHilo extends Thread{
             mensaje = new ObjectOutputStream(so.getOutputStream());
             mensaje.writeObject(p);
             System.out.println("Enviado paquete: " + p.getID());
-            this.wait(3000);
+            this.wait(1000);
             mensaje.flush();
         }
         

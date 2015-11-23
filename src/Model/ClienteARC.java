@@ -24,7 +24,7 @@ import java.lang.Thread;
 public class ClienteARC {
     
     public void lanzarHilos(){
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < 100; i++){
             MiHilo h = new MiHilo(i, this);
             h.start();
             
