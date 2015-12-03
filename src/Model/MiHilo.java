@@ -35,7 +35,6 @@ public class MiHilo extends Thread{
         
         public MiHilo(int _idHilo, ClienteARC _clientes){
             idHilo = String.valueOf(_idHilo);
-            System.out.println(idHilo);
             clientes = _clientes;
             
         }
@@ -43,16 +42,15 @@ public class MiHilo extends Thread{
         @Override
         public synchronized void run(){
             try{
-                p = this.crearPaquete();
-                this.iniciarCliente(p);
-               
+                this.iniciarCliente();
+
             }catch(Exception e){
                 e.printStackTrace();
             }
 
         }
         
-        public synchronized void iniciarCliente(Paquete p) throws InterruptedException{
+        public synchronized void iniciarCliente() throws InterruptedException{
             InetAddress ip;
             try{
                 //Asignamos el identificador del hilo y un socket a escuchar el puerto de un host
@@ -63,14 +61,14 @@ public class MiHilo extends Thread{
                 mensajetexto = new DataOutputStream(so.getOutputStream());
                 ip = so.getLocalAddress();
                 String ipString = ip.toString();
-                String id = getId() + ipString ; 
-                System.out.println(id);
+                String id = this.getId() + ipString ; 
+                System.out.println("Despues: " + id);
                 this.setIdHilo(id);
-                mensajetexto.writeUTF("A la espera proceso "+getIdHilo());
+                mensajetexto.writeUTF(getIdHilo());
                 mensajetexto.flush();
                 
                 String ent = entradatxt.readUTF();
-                
+
                 while(!ent.equals("Finalizar")){
                     System.out.println("Valor entrada: " + ent);
                     switch(ent){
@@ -85,6 +83,7 @@ public class MiHilo extends Thread{
                             System.out.println("Mi tamaño de vector es: " + (aux));
                             break;
                         case "Comenzar":
+                            p = this.crearPaquete();
                             System.out.println("voy a enviar");
                             enviarPaquete(p);
                             break;
@@ -128,8 +127,10 @@ public class MiHilo extends Thread{
 
             coordx = (x.nextDouble() * screenSize.width + 0);
             coordy = (y.nextDouble() * screenSize.height + 0);
-            
-            Paquete p = new Paquete(this.idHilo, coordx, coordy);
+            System.out.println(this.getIdHilo());
+            String idPaquete = "p_" + this.getIdHilo();
+            System.out.println("Paquete: " + idPaquete);
+            Paquete p = new Paquete(idPaquete, coordx, coordy);
             return p;
         }
         
