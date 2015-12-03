@@ -53,6 +53,9 @@ public class MiHilo extends Thread{
         
         public synchronized void iniciarCliente() throws InterruptedException{
             InetAddress ip;
+            long time_start = 0, time_end;
+            
+            
             try{
                 //Asignamos el identificador del hilo y un socket a escuchar el puerto de un host
                 so = new Socket(host, puerto);
@@ -63,7 +66,6 @@ public class MiHilo extends Thread{
                 ip = so.getLocalAddress();
                 String ipString = ip.toString();
                 String id = this.getId() + ipString ; 
-                System.out.println("Despues: " + id);
                 this.setIdHilo(id);
                 mensajetexto.writeUTF(getIdHilo());
                 mensajetexto.flush();
@@ -71,36 +73,28 @@ public class MiHilo extends Thread{
                 String ent = entradatxt.readUTF();
 
                 while(!ent.equals("Finalizar")){
-                    System.out.println("Valor entrada: " + ent);
                     switch(ent){
                         case "Conexión creada, mantente a la espera.":
-                            System.out.println("Conexión Creada");
-                            wait(100);
+                            time_start = System.currentTimeMillis();
+                            wait(500);
                             break;
                         case "Numero Vecinos":
-                            
                             contVecinos = Integer.parseInt(entradatxt.readUTF());
                             paquetesVecinos = new ArrayList<Paquete>();
-                            System.out.println("Mi tamaño de vector es: " + (contVecinos));
                             break;
                         case "Comenzar":
                             p = this.crearPaquete();
-                            System.out.println("voy a enviar");
                             enviarPaquete(p);
                             break;
                         case "Mantente a la espera.":
-                            System.out.println("Esperando...");
                             sleep(500);
                             break;
                         case "Te envio a tus vecinos.":                              
                             almacenarPaquetesServidor();
-                            System.out.println("Almacenando...");
-                               
-                            
-                            
-                            /*for(contVecinos = 0; contVecinos < paquetesVecinos.length; contVecinos++)
-                                System.out.println(paquetesVecinos[contVecinos].getID());
-                            */
+                            break;
+                        case "Fin Ciclo":
+                            time_end = System.currentTimeMillis();
+                            System.out.println("Tiempo ciclo para proceso: " + this.getIdHilo() + " -> " + (time_end - time_start ) +" milliseconds");
                             break;
                         default:
                             System.out.println("No se ha obtenido respuesta del servidor");
@@ -128,9 +122,8 @@ public class MiHilo extends Thread{
 
             coordx = (x.nextDouble() * screenSize.width + 0);
             coordy = (y.nextDouble() * screenSize.height + 0);
-            System.out.println(this.getIdHilo());
+            
             String idPaquete = "p_" + this.getIdHilo();
-            System.out.println("Paquete: " + idPaquete);
             Paquete p = new Paquete(idPaquete, coordx, coordy);
             return p;
         }
@@ -139,7 +132,6 @@ public class MiHilo extends Thread{
             
             mensaje = new ObjectOutputStream(so.getOutputStream());
             mensaje.writeObject(p);
-            System.out.println("Enviado paquete: " + p.getID());
             mensaje.flush();
         }
         
@@ -149,18 +141,12 @@ public class MiHilo extends Thread{
             try {
                 vecinos = new ObjectInputStream(so.getInputStream());
                 p_aux = (Paquete) vecinos.readObject();
-                System.out.println("Paquete recibido: " + p_aux.getID() + " " + p_aux.getX());
                 paquetesVecinos.add(p_aux);
                 
                 if(paquetesVecinos.size() == contVecinos )
-                {
-                    System.out.println("Todos Recibidos");
-                    for(int i =0 ; i< paquetesVecinos.size(); i++)
-                        System.out.println(paquetesVecinos.get(i).getID());
-                    
+                {                    
                     DataOutputStream mensajeTodos = new DataOutputStream(so.getOutputStream());
                     mensajeTodos.writeUTF("Todos Recibidos");
-                    
                 }    
                         
             } catch (IOException ex) {
