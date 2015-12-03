@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Random;
 import java.util.logging.Level;
@@ -17,10 +18,10 @@ import java.util.logging.Logger;
 
 public class MiHilo extends Thread{
     
-        private int idHilo;
+        private String idHilo;
         private Socket so;
         private final int puerto = 5000;
-        private final String host= "192.168.1.103";
+        private final String host= "192.168.1.107";
         private Paquete p;
         private ObjectOutputStream mensaje;
         private ObjectInputStream vecinos;
@@ -33,7 +34,8 @@ public class MiHilo extends Thread{
         ClienteARC clientes;
         
         public MiHilo(int _idHilo, ClienteARC _clientes){
-            idHilo = _idHilo;
+            idHilo = String.valueOf(_idHilo);
+            System.out.println(idHilo);
             clientes = _clientes;
             
         }
@@ -51,7 +53,7 @@ public class MiHilo extends Thread{
         }
         
         public synchronized void iniciarCliente(Paquete p) throws InterruptedException{
-
+            InetAddress ip;
             try{
                 //Asignamos el identificador del hilo y un socket a escuchar el puerto de un host
                 so = new Socket(host, puerto);
@@ -59,9 +61,14 @@ public class MiHilo extends Thread{
                 //Mensaje que vamos a recibir
                 entradatxt = new DataInputStream((so.getInputStream()));
                 mensajetexto = new DataOutputStream(so.getOutputStream());
+                ip = so.getLocalAddress();
+                String ipString = ip.toString();
+                String id = getId() + ipString ; 
+                System.out.println(id);
+                this.setIdHilo(id);
                 mensajetexto.writeUTF("A la espera proceso "+getIdHilo());
                 mensajetexto.flush();
-
+                
                 String ent = entradatxt.readUTF();
                 
                 while(!ent.equals("Finalizar")){
@@ -74,8 +81,8 @@ public class MiHilo extends Thread{
                         case "Numero Vecinos":
                             int aux = 0;
                             aux = Integer.parseInt(entradatxt.readUTF());
-                            paquetesVecinos = new Paquete[aux - 1];
-                            System.out.println("Mi tamaño de vector es: " + (aux-1));
+                            paquetesVecinos = new Paquete[aux];
+                            System.out.println("Mi tamaño de vector es: " + (aux));
                             break;
                         case "Comenzar":
                             System.out.println("voy a enviar");
@@ -153,11 +160,11 @@ public class MiHilo extends Thread{
                 
             }
         }
-        public int getIdHilo(){
+        public String getIdHilo(){
             return idHilo;
         }
 
-        public void setIdHilo(int idHilo){
+        public void setIdHilo(String idHilo){
             this.idHilo = idHilo;
         }
 

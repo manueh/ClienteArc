@@ -25,7 +25,9 @@ public class ClienteARC {
     
     public void lanzarHilos(){
         for(int i = 0; i < 100; i++){
+            System.out.println(i);
             MiHilo h = new MiHilo(i, this);
+            
             h.start();
             
         }
