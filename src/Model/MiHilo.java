@@ -149,11 +149,15 @@ public class MiHilo extends Thread{
             try {
                 vecinos = new ObjectInputStream(so.getInputStream());
                 p_aux = (Paquete) vecinos.readObject();
-                System.out.println("Paquete recibido: " + p.getID() + " " + p.getX());
-                paquetesVecinos.add(p);
+                System.out.println("Paquete recibido: " + p_aux.getID() + " " + p_aux.getX());
+                paquetesVecinos.add(p_aux);
                 
                 if(paquetesVecinos.size() == contVecinos )
                 {
+                    System.out.println("Todos Recibidos");
+                    for(int i =0 ; i< paquetesVecinos.size(); i++)
+                        System.out.println(paquetesVecinos.get(i).getID());
+                    
                     DataOutputStream mensajeTodos = new DataOutputStream(so.getOutputStream());
                     mensajeTodos.writeUTF("Todos Recibidos");
                     
