@@ -12,6 +12,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,7 +29,7 @@ public class MiHilo extends Thread{
         private DataOutputStream mensajetexto;
         private DataInputStream entradatxt;
         Toolkit t = Toolkit.getDefaultToolkit();
-        private Paquete[] paquetesVecinos;
+        private ArrayList<Paquete> paquetesVecinos;
         private  int contVecinos ;
         
         ClienteARC clientes;
@@ -77,10 +78,10 @@ public class MiHilo extends Thread{
                             wait(100);
                             break;
                         case "Numero Vecinos":
-                            int aux = 0;
-                            aux = Integer.parseInt(entradatxt.readUTF());
-                            paquetesVecinos = new Paquete[aux];
-                            System.out.println("Mi tamaño de vector es: " + (aux));
+                            
+                            contVecinos = Integer.parseInt(entradatxt.readUTF());
+                            paquetesVecinos = new ArrayList<Paquete>();
+                            System.out.println("Mi tamaño de vector es: " + (contVecinos));
                             break;
                         case "Comenzar":
                             p = this.crearPaquete();
@@ -89,7 +90,7 @@ public class MiHilo extends Thread{
                             break;
                         case "Mantente a la espera.":
                             System.out.println("Esperando...");
-                            wait(500);
+                            sleep(500);
                             break;
                         case "Te envio a tus vecinos.":                              
                             almacenarPaquetesServidor();
@@ -144,23 +145,29 @@ public class MiHilo extends Thread{
         
         public void almacenarPaquetesServidor(){
             
-            Paquete p;
-            for(int i = 0 ; i < paquetesVecinos.length;  i++ ){
+            Paquete p_aux;                
+            try {
+                vecinos = new ObjectInputStream(so.getInputStream());
+                p_aux = (Paquete) vecinos.readObject();
+                System.out.println("Paquete recibido: " + p.getID() + " " + p.getX());
+                paquetesVecinos.add(p);
                 
-                try {
-                    vecinos = new ObjectInputStream(so.getInputStream());
-                    p = (Paquete) vecinos.readObject();
-                    System.out.println("Paquete recibido: " + p.getID() + " " + p.getX());
-                    paquetesVecinos[i] = p;
-                    System.out.println("Soy el proceso " + this.getIdHilo() + " Y almaceno al Vecino " + p.getID() + " almacenado en pos " + i);
-                } catch (IOException ex) {
-                    Logger.getLogger(MiHilo.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ClassNotFoundException ex) {
-                    Logger.getLogger(MiHilo.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                if(paquetesVecinos.size() == contVecinos )
+                {
+                    DataOutputStream mensajeTodos = new DataOutputStream(so.getOutputStream());
+                    mensajeTodos.writeUTF("Todos Recibidos");
+                    
+                }    
+                        
+            } catch (IOException ex) {
+                Logger.getLogger(MiHilo.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(MiHilo.class.getName()).log(Level.SEVERE, null, ex);
+            }
                 
             }
-        }
+        
+        
         public String getIdHilo(){
             return idHilo;
         }
