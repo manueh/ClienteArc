@@ -22,7 +22,7 @@ public class MiHilo extends Thread{
         private String idHilo;
         private Socket so;
         private final int puerto = 5000;
-        private final String host= "localhost";
+        private final String host= "192.168.1.18";
         private Paquete p;
         private ObjectOutputStream mensaje;
         private ObjectInputStream vecinos;
@@ -73,8 +73,8 @@ public class MiHilo extends Thread{
                 mensajetexto.flush();
                 
                 String ent = entradatxt.readUTF();
-
                 while(!ent.equals("Finalizar")){
+                    System.out.println("Jorge me manda: " + ent);
                     switch(ent){
                         case "Conexión creada, mantente a la espera.":
                             System.out.println("Conexion creada");
@@ -101,6 +101,7 @@ public class MiHilo extends Thread{
                         case "Fin Ciclo":
                             time_end = System.currentTimeMillis();
                             System.out.println("Tiempo ciclo para proceso: " + this.getIdHilo() + " -> " + (time_end - time_start ) +" milliseconds");
+                            paquetesVecinos.clear();
                             break;
                         default:
                             System.out.println("No se ha obtenido respuesta del servidor");
@@ -154,6 +155,7 @@ public class MiHilo extends Thread{
                 {                    
                     DataOutputStream mensajeTodos = new DataOutputStream(so.getOutputStream());
                     mensajeTodos.writeUTF("Todos Recibidos");
+                    mensajeTodos.flush();
                 }    
                         
             } catch (IOException ex) {
@@ -161,8 +163,8 @@ public class MiHilo extends Thread{
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(MiHilo.class.getName()).log(Level.SEVERE, null, ex);
             }
-                
-            }
+            System.out.println("Almacenar, almaceno. jeje");
+        }
         
         
         public String getIdHilo(){
