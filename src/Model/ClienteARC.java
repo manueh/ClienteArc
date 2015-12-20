@@ -25,7 +25,7 @@ import static java.lang.Thread.sleep;
 public class ClienteARC {
     
     public void lanzarHilos() {
-        for(int i = 0; i < 100; i++){
+        for(int i = 0; i < 1000; i++){
             MiHilo h = new MiHilo(i, this);
             
             h.start();

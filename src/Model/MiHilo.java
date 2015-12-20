@@ -22,7 +22,7 @@ public class MiHilo extends Thread{
         private String idHilo;
         private Socket so;
         private final int puerto = 5000;
-        private final String host= "192.168.1.107";
+        private final String host= "localhost";
         private Paquete p;
         private ObjectOutputStream mensaje;
         private ObjectInputStream vecinos;
@@ -54,7 +54,7 @@ public class MiHilo extends Thread{
         public synchronized void iniciarCliente() throws InterruptedException{
             InetAddress ip;
             long time_start = 0, time_end;
-            
+            long tiempo_total = 0;
             
             try{
                 //Asignamos el identificador del hilo y un socket a escuchar el puerto de un host
@@ -63,10 +63,12 @@ public class MiHilo extends Thread{
                 //Mensaje que vamos a recibir
                 entradatxt = new DataInputStream((so.getInputStream()));
                 mensajetexto = new DataOutputStream(so.getOutputStream());
+                
                 ip = so.getLocalAddress();
                 String ipString = ip.toString();
                 String id = this.getId() + ipString ; 
                 this.setIdHilo(id);
+                
                 mensajetexto.writeUTF(getIdHilo());
                 mensajetexto.flush();
                 
@@ -75,15 +77,19 @@ public class MiHilo extends Thread{
                 while(!ent.equals("Finalizar")){
                     switch(ent){
                         case "Conexión creada, mantente a la espera.":
+                            System.out.println("Conexion creada");
                             time_start = System.currentTimeMillis();
-                            wait(500);
+                            sleep(50);
                             break;
                         case "Numero Vecinos":
                             contVecinos = Integer.parseInt(entradatxt.readUTF());
                             paquetesVecinos = new ArrayList<Paquete>();
                             break;
                         case "Comenzar":
+                            System.out.println("Creando paquete...");
                             p = this.crearPaquete();
+                            sleep(50);
+                            System.out.println("Enviando paquete " + p.getID());
                             enviarPaquete(p);
                             break;
                         case "Mantente a la espera.":
@@ -102,14 +108,15 @@ public class MiHilo extends Thread{
                     }
                     ent = entradatxt.readUTF();
                 }
-                //mensaje que vamos a enviar
-                mensajetexto = new DataOutputStream(so.getOutputStream());
                 
-                //so.close();
+                tiempo_total = System.currentTimeMillis();
+                System.out.println("Tiempo total ejecución: " + (tiempo_total - time_start));
+                
             } catch (IOException ex) {
                 System.out.println("ERROR INICIAR CLIENTE "+ getIdHilo());
                 ex.printStackTrace();
             }
+            
         }
         
         public Paquete crearPaquete (){
