@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,7 +24,7 @@ public class MiHilo extends Thread{
         private String idHilo;
         private Socket so;
         private final int puerto = 5000;
-        private final String host= "192.168.1.18";
+        private final String host= "localhost";
         private Paquete p;
         private ObjectOutputStream mensaje;
         private ObjectInputStream vecinos;
@@ -33,19 +34,21 @@ public class MiHilo extends Thread{
         private ArrayList<Paquete> paquetesVecinos;
         private  int contVecinos ;
         private ArrayList<String> tiempos;
-        private File f  = new File("tiempos" + System.currentTimeMillis()/1000 + ".txt");
-        private BufferedWriter bw;
-        private FileWriter w;
-        private PrintWriter  pw;
-
-        
+        private File f , f1;
+        private BufferedWriter bw, bw1;
+        private FileWriter w, w1;
+        private PrintWriter  pw, pw1;
+        private Date fecha;
+        private int numCiclos;
         ClienteARC clientes;
         
         public MiHilo(int _idHilo, ClienteARC _clientes){
             
             idHilo = String.valueOf(_idHilo);
             clientes = _clientes;
-            
+            fecha = new Date();
+            f  = new File("tiempos" + fecha.getDay()+ fecha.getMonth()+ ".txt");
+            f1 = new File("tiempos_medios" + fecha.getDay()+ fecha.getMonth()+ ".txt");
         }
 
         @Override
@@ -72,6 +75,8 @@ public class MiHilo extends Thread{
                 entradatxt = new DataInputStream((so.getInputStream()));
                 mensajetexto = new DataOutputStream(so.getOutputStream());
                 
+                //Le damos al paquete un id segun de la ip que proviene para
+                //poderlos diferenciar.
                 ip = so.getLocalAddress();
                 String ipString = ip.toString();
                 String id = this.getId() + ipString ; 
@@ -90,8 +95,11 @@ public class MiHilo extends Thread{
                             w = new FileWriter(f, true);
                             bw = new BufferedWriter(w);
                             pw = new PrintWriter(bw);
+                            w1 = new FileWriter(f1, true);
+                            bw1 = new BufferedWriter(w1);
+                            pw1 = new PrintWriter(bw1);
                             time_start = System.currentTimeMillis();
-                            sleep(50);
+                            sleep(10);
                             break;
                         case "Numero Vecinos":
                             contVecinos = Integer.parseInt(entradatxt.readUTF());
@@ -99,26 +107,26 @@ public class MiHilo extends Thread{
                             break;
                         case "Comenzar":
                             p = this.crearPaquete();
-                            sleep(50);
+                            sleep(10);
                             enviarPaquete(p);
                             break;
                         case "Mantente a la espera.":
-                            sleep(500);
+                            sleep(10);
                             break;
                         case "Te envio a tus vecinos.":                              
                             almacenarPaquetesServidor();
                             break;
                         case "Fin Ciclo":
                             time_end = System.currentTimeMillis();
-                            System.out.println("Tiempo ciclo para proceso: " + this.getIdHilo() + " -> " + (time_end - time_start )/100 +" milliseconds");
+                            System.out.println("Tiempo ciclo para proceso: " + this.getIdHilo() + " -> " + (time_end - time_start )/100 +" seconds");
                             if(f.exists())
-                                pw.println("Tiempo ciclo para proceso:\t" + this.getIdHilo()+"\t" + "-> " + (time_end - time_start )/100 +" milliseconds \n");
+                                pw.println("Tiempo ciclo para proceso:\t" + this.getIdHilo()+"\t" + "-> " + (time_end - time_start )/100 +" seconds \n");
                             else
-                                pw.write("Tiempo ciclo para proceso:\t" + this.getIdHilo() + "\t" + "-> " + (time_end - time_start )/100 +" milliseconds");
-                            
+                                pw.write("Tiempo ciclo para proceso:\t" + this.getIdHilo() + "\t" + "-> " + (time_end - time_start )/100 +" seconds");
                             pw.close();
                             bw.close();
                             paquetesVecinos.clear();
+                            numCiclos++;
                             break;
                         default:
                             System.out.println("No se ha obtenido respuesta del servidor");
@@ -128,8 +136,17 @@ public class MiHilo extends Thread{
                 }
                 
                 tiempo_total = System.currentTimeMillis();
-                System.out.println("Tiempo total ejecución: " + (tiempo_total - time_start)/1000);
+                System.out.println("Tiempo total ejecución: " + (tiempo_total - time_start)/1000 + "segundos.");
+                System.out.println("Tiempo medio ejecución: " + ((tiempo_total - time_start)/1000)/numCiclos + "segundos.");
                 
+                
+                if(f1.exists())
+                    pw1.println("Hilo " + this.getIdHilo() + "\tTiempo medio ejecución: " + ((tiempo_total - time_start)/1000)/numCiclos + "seconds.");
+                else
+                    pw1.write("Hilo " + this.getIdHilo() + "\tTiempo medio ejecución: " + ((tiempo_total - time_start)/1000)/numCiclos + "seconds.");
+                
+                pw1.close();
+                bw1.close();
             } catch (IOException ex) {
                 System.out.println("ERROR INICIAR CLIENTE "+ getIdHilo());
                 ex.printStackTrace();

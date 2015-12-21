@@ -25,12 +25,10 @@ public class ClienteARC {
     
     public void lanzarHilos() {
         
-        ArrayList<String> s = new ArrayList<String>(); 
-            for(int i = 0; i < 100; i++){
-                MiHilo h = new MiHilo(i, this);
-                h.start();
-               
-            }
+        for(int i = 0; i < 200 ; i++){
+            MiHilo h = new MiHilo(i, this);
+            h.start();       
+        }
         
     }
  
