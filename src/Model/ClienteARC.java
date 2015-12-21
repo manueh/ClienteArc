@@ -15,7 +15,6 @@ import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.lang.Thread;
-import static java.lang.Thread.sleep;
 /**
  *
  * @author Manu
@@ -25,12 +24,14 @@ import static java.lang.Thread.sleep;
 public class ClienteARC {
     
     public void lanzarHilos() {
-        for(int i = 0; i < 100; i++){
-            MiHilo h = new MiHilo(i, this);
-            
-            h.start();
-            
-        }
+        
+        ArrayList<String> s = new ArrayList<String>(); 
+            for(int i = 0; i < 100; i++){
+                MiHilo h = new MiHilo(i, this);
+                h.start();
+               
+            }
+        
     }
  
     public static void main(String[] args) {

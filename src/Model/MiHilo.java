@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -31,10 +32,17 @@ public class MiHilo extends Thread{
         Toolkit t = Toolkit.getDefaultToolkit();
         private ArrayList<Paquete> paquetesVecinos;
         private  int contVecinos ;
+        private ArrayList<String> tiempos;
+        private File f  = new File("tiempos" + System.currentTimeMillis()/1000 + ".txt");
+        private BufferedWriter bw;
+        private FileWriter w;
+        private PrintWriter  pw;
+
         
         ClienteARC clientes;
         
         public MiHilo(int _idHilo, ClienteARC _clientes){
+            
             idHilo = String.valueOf(_idHilo);
             clientes = _clientes;
             
@@ -74,10 +82,14 @@ public class MiHilo extends Thread{
                 
                 String ent = entradatxt.readUTF();
                 while(!ent.equals("Finalizar")){
-                    System.out.println("Jorge me manda: " + ent);
+                    System.out.println(ent);
                     switch(ent){
+                        
                         case "Conexión creada, mantente a la espera.":
                             System.out.println("Conexion creada");
+                            w = new FileWriter(f, true);
+                            bw = new BufferedWriter(w);
+                            pw = new PrintWriter(bw);
                             time_start = System.currentTimeMillis();
                             sleep(50);
                             break;
@@ -86,10 +98,8 @@ public class MiHilo extends Thread{
                             paquetesVecinos = new ArrayList<Paquete>();
                             break;
                         case "Comenzar":
-                            System.out.println("Creando paquete...");
                             p = this.crearPaquete();
                             sleep(50);
-                            System.out.println("Enviando paquete " + p.getID());
                             enviarPaquete(p);
                             break;
                         case "Mantente a la espera.":
@@ -100,7 +110,14 @@ public class MiHilo extends Thread{
                             break;
                         case "Fin Ciclo":
                             time_end = System.currentTimeMillis();
-                            System.out.println("Tiempo ciclo para proceso: " + this.getIdHilo() + " -> " + (time_end - time_start ) +" milliseconds");
+                            System.out.println("Tiempo ciclo para proceso: " + this.getIdHilo() + " -> " + (time_end - time_start )/100 +" milliseconds");
+                            if(f.exists())
+                                pw.println("Tiempo ciclo para proceso:\t" + this.getIdHilo()+"\t" + "-> " + (time_end - time_start )/100 +" milliseconds \n");
+                            else
+                                pw.write("Tiempo ciclo para proceso:\t" + this.getIdHilo() + "\t" + "-> " + (time_end - time_start )/100 +" milliseconds");
+                            
+                            pw.close();
+                            bw.close();
                             paquetesVecinos.clear();
                             break;
                         default:
@@ -111,7 +128,7 @@ public class MiHilo extends Thread{
                 }
                 
                 tiempo_total = System.currentTimeMillis();
-                System.out.println("Tiempo total ejecución: " + (tiempo_total - time_start));
+                System.out.println("Tiempo total ejecución: " + (tiempo_total - time_start)/1000);
                 
             } catch (IOException ex) {
                 System.out.println("ERROR INICIAR CLIENTE "+ getIdHilo());
@@ -163,7 +180,6 @@ public class MiHilo extends Thread{
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(MiHilo.class.getName()).log(Level.SEVERE, null, ex);
             }
-            System.out.println("Almacenar, almaceno. jeje");
         }
         
         
@@ -175,4 +191,12 @@ public class MiHilo extends Thread{
             this.idHilo = idHilo;
         }
 
+        public ArrayList<String> getTiempos() {
+            return tiempos;
+        }
+
+        public void setTiempos(ArrayList<String> tiempos) {
+            this.tiempos = tiempos;
+        }
+        
     }
